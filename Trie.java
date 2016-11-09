@@ -234,11 +234,6 @@ public class Trie
 
 		// Get the child node associated with a given character, i.e. that character is "on" 
 		// the edge from this node to the child.  The child could be null.  
-//CREATED
-		public int getDepth() {
-			return this.depth;
-		}
-
 
 		public TrieNode getChild(char c) 
 		{
@@ -284,6 +279,11 @@ public class Trie
 			
 			// ADD YOUR CODE ABOVE HERE
 		
+		}
+		
+		//HELPER METHOD
+		public int getDepth() {
+			return this.depth;
 		}
 	}
 
