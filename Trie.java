@@ -4,7 +4,7 @@ package a3posted;
 //  Assignment #3 - Question 1
 
 import java.util.*;
-//helllluuuu
+
 /*
  *  Trie class.  Each node is associated with a prefix of some key 
  *  stored in the trie.   (Any string is a prefix of itself.)
@@ -35,9 +35,15 @@ public class Trie
 	public void insert(String key)
 	{
 		//  ADD YOUR CODE BELOW HERE
-
-	
-
+		//use getPrefixNode() to check for similar prefixes
+		TrieNode start = getPrefixNode(key); //find where to start adding characters
+		int curDepth = start.getDepth();
+		while(curDepth < key.length()){
+		//for(int i = curDepth; i < key.length(); i++){
+			start = start.createChild(key.charAt(curDepth)); //start is parent
+			curDepth++;
+		}
+		start.setEndOfKey(true);
 		//  ADD YOUR ABOVE HERE
 	}
 
@@ -62,7 +68,14 @@ public class Trie
 	{
 		//   ADD YOUR CODE BELOW HERE
 
-		   return null;  //  REPLACE THIS STUB
+		//go through each character of new word until end or until no more matching characters
+		TrieNode current = root;
+		for (int i = 0; i < key.length(); i++){
+			if(key.charAt(i) == current.getChild(key.charAt(i)).charInParent){ //must match child's charInParent
+				current = current.getChild(key.charAt(i)); //next node
+			}
+		}		
+		return current;
 		//
 		//   ADD YOUR CODE ABOVE HERE
 
@@ -85,9 +98,22 @@ public class Trie
 	public boolean contains(String key)
 	{  
 		//   ADD YOUR CODE BELOW HERE
-
+		//getPrefixNode(), then see if there's any characters left; also watch for root
+		TrieNode prefix = getPrefixNode(key);
+		//int depth = prefix.getDepth();
+		if(prefix == null){
+			return false;
+		}
+		
+		if((prefix.getDepth() == key.length()) && (prefix.endOfKey)){ //no characters left
+			return true;
+		}
+		else{
+			return false;
+		}
 		
 		//   ADD YOUR CODE ABOVE HERE
+		
 	}
 
 	/*
@@ -96,7 +122,26 @@ public class Trie
 	public ArrayList<String> getAllPrefixMatches( String prefix )
 	{
 		//  ADD YOUR CODE BELOW 
-
+		ArrayList<String> stringList = new ArrayList<String>();
+		TrieNode start = getPrefixNode(prefix);
+		TrieNode current;
+		//while there are still more characters possible
+		if (start.isEndOfKey()){//if prefix is a key in itself
+		   stringList.add(start.toString());
+	    }
+		while(start.getDepth() <= root.getDepth()){
+			//find element to add
+			//get all nodes from children []
+			for (int i = 0; i < TrieNode.NUMCHILDREN; i++){
+				if (start.getChild((char)i) != null){ //if char child exists
+					current = start.getChild((char)i);
+					if(current.isEndOfKey()){
+						stringList.add(current.toString());
+					}
+				}
+			}
+			
+		}
 		
 		//  ADD YOUR CODE ABOVE HERE
 
@@ -124,6 +169,8 @@ public class Trie
 	 */
 
 	private class TrieNode
+	//each TrieNode has 4 properties:
+	//children (TrieNode array), endKey, depth, charInParent
 	{
 		/*  
 		 *   Highest allowable character index is NUMCHILDREN-1
@@ -133,11 +180,13 @@ public class Trie
 		 *   To access it, write "TrieNode.NUMCHILDREN"
 		 */
 
-		public static final int NUMCHILDREN = 256;
+		public static final int NUMCHILDREN = 256; //any ASCII character
 
 		private TrieNode   parent;
-		private TrieNode[] children;
+		private TrieNode[] children; //array of children
 		private int        depth;            // 0 for root, 1 for root's children, 2 for their children, etc..
+
+
 		private char       charInParent;    // Character associated with edge between this node and its parent.
 		        			        		// See comment above for relationship between an index in 0 to 255 and a char value.
 		private boolean endOfKey;   // Set to true if prefix associated with this node is also a key.
@@ -146,7 +195,7 @@ public class Trie
 
 		public TrieNode()
 		{
-			children = new TrieNode[NUMCHILDREN];
+			children = new TrieNode[NUMCHILDREN]; //NUMCHILDREN actually = number of nodes?
 			endOfKey = false;
 			depth = 0; 
 			charInParent = (char)0; 
@@ -161,10 +210,23 @@ public class Trie
 		 */
 		public TrieNode createChild(char  c) 
 		{	   
-			TrieNode child       = new TrieNode();
+			TrieNode child = new TrieNode(); //builds second circle! 
+			
 
 			// ADD YOUR CODE BELOW HERE
-
+			//need to add next character of given prefix to end of trie path
+			//add children to TrieNode [] children array?
+			//children [depth] = charInParent;
+			//child.setDepth(this.depth++, child);
+			
+			
+			//build edge: child's parent is "this"
+			child.parent = this; //this = root or other current node
+			child.depth = depth++; //add 1 to depth
+			child.charInParent = c; //set character
+			//add child to parent's children array
+			children[c] = child;
+			
 			// ADD YOUR CODE ABOVE HERE
 
 			return child;
@@ -172,6 +234,11 @@ public class Trie
 
 		// Get the child node associated with a given character, i.e. that character is "on" 
 		// the edge from this node to the child.  The child could be null.  
+//CREATED
+		public int getDepth() {
+			return this.depth;
+		}
+
 
 		public TrieNode getChild(char c) 
 		{
@@ -205,10 +272,19 @@ public class Trie
 		public String toString()
 		{
 			// ADD YOUR CODE BELOW HERE
-
+			//if root, has not parent
+			if (this.parent == null){
+				return "";
+			}
+			else{
+				return this.parent.toString() + this.charInParent;
+				//recursive, similar to stack
+			}
+			
+			
 			// ADD YOUR CODE ABOVE HERE
+		
 		}
 	}
-
 
 }
